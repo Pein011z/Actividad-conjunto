@@ -13,45 +13,57 @@ class NotificacionService(private val jdbcTemplate: JdbcTemplate) {
         Notificacion(
             id = rs.getInt("id"),
             id_usuario = rs.getInt("id_usuario"),
-            mensaje = rs.getString("mensaje"),
             id_ticket = rs.getInt("id_ticket"),
-            fecha_envio = rs.getTimestamp("fecha_envio")?.toLocalDateTime()
+            fecha_envio = rs.getTimestamp("fecha_envio").toLocalDateTime(),
+            creado_en = rs.getTimestamp("creado_en").toLocalDateTime(),
+            actualizado_en = rs.getTimestamp("actualizado_en").toLocalDateTime()
         )
     }
 
     fun obtenerTodas(): List<Notificacion> {
-        val sql = "SELECT * FROM notificaciones"
+        val sql = "SELECT * FROM notificacion"
         return jdbcTemplate.query(sql, rowMapper)
     }
 
     fun obtenerPorUsuario(idUsuario: Int): List<Notificacion> {
-        val sql = "SELECT * FROM notificaciones WHERE id_usuario = ?"
+        val sql = "SELECT * FROM notificacion WHERE id_usuario = ?"
         return jdbcTemplate.query(sql, rowMapper, idUsuario)
     }
 
     fun crearNotificacion(notificacion: Notificacion) {
-        val sql = "INSERT INTO notificaciones (id_usuario, mensaje, id_ticket, fecha_envio) VALUES (?, ?, ?, ?)"
         val ahora = LocalDateTime.now()
-        jdbcTemplate.update(sql, notificacion.id_usuario, notificacion.mensaje, notificacion.id_ticket, ahora)
+        val sql = """
+            INSERT INTO notificacion (id_usuario, id_ticket, fecha_envio, creado_en, actualizado_en) 
+            VALUES (?, ?, ?, ?, ?)
+        """.trimIndent()
+        jdbcTemplate.update(
+            sql,
+            notificacion.id_usuario,
+            notificacion.id_ticket,
+            notificacion.fecha_envio,
+            ahora,
+            ahora
+        )
     }
 
     fun eliminarNotificacion(id: Int) {
-        val sql = "DELETE FROM notificaciones WHERE id = ?"
+        val sql = "DELETE FROM notificacion WHERE id = ?"
         jdbcTemplate.update(sql, id)
     }
 
     fun actualizarNotificacion(id: Int, nuevaNotificacion: Notificacion) {
+        val ahora = LocalDateTime.now()
         val sql = """
-            UPDATE notificaciones 
-            SET id_usuario = ?, mensaje = ?, id_ticket = ?, fecha_envio = ? 
+            UPDATE notificacion
+            SET id_usuario = ?, id_ticket = ?, fecha_envio = ?, actualizado_en = ?
             WHERE id = ?
         """.trimIndent()
         jdbcTemplate.update(
             sql,
             nuevaNotificacion.id_usuario,
-            nuevaNotificacion.mensaje,
             nuevaNotificacion.id_ticket,
-            nuevaNotificacion.fecha_envio ?: LocalDateTime.now(),
+            nuevaNotificacion.fecha_envio,
+            ahora,
             id
         )
     }

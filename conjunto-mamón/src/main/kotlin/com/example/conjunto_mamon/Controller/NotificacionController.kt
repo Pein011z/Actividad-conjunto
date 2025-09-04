@@ -17,20 +17,19 @@ class NotificacionController(@Autowired val notificacionService: NotificacionSer
         notificacionService.obtenerPorUsuario(idUsuario)
 
     @PostMapping
-    fun crear(@RequestBody notificacion: Notificacion): String {
+    fun crearNotificacion(@RequestBody notificacion: Notificacion): String {
         notificacionService.crearNotificacion(notificacion)
-        println("Notificación simulada enviada: ${notificacion.mensaje}")
         return "Notificación creada correctamente"
     }
 
     @DeleteMapping("/{id}")
-    fun eliminar(@PathVariable id: Int): String {
+    fun eliminarNotificacion(@PathVariable id: Int): String {
         notificacionService.eliminarNotificacion(id)
         return "Notificación eliminada"
     }
 
     @PutMapping("/{id}")
-    fun actualizar(@PathVariable id: Int, @RequestBody notificacion: Notificacion): String {
+    fun actualizarNotificacion(@PathVariable id: Int, @RequestBody notificacion: Notificacion): String {
         notificacionService.actualizarNotificacion(id, notificacion)
         return "Notificación actualizada"
     }
